@@ -1,6 +1,5 @@
 using Padutronics.Diagnostics.Tracing.Filters;
 using Padutronics.Diagnostics.Tracing.Listeners;
-using System.Collections.Generic;
 
 namespace Padutronics.Diagnostics.Tracing.Console.Listeners;
 
@@ -8,25 +7,27 @@ using System;
 
 public sealed class ConsoleTraceListener : TraceListener
 {
-    private const ConsoleColor LineNumberColor = ConsoleColor.Magenta;
-    private const ConsoleColor MemberNameColor = ConsoleColor.Green;
-    private const ConsoleColor NamespaceColor = ConsoleColor.DarkGray;
-    private const ConsoleColor TextColor = ConsoleColor.Gray;
-    private const ConsoleColor TypeNameColor = ConsoleColor.Cyan;
+    private readonly ConsoleTraceListenerFormatOptions formatOptions;
 
-    private readonly IReadOnlyDictionary<TraceSeverity, ConsoleColor> severityToColorMappings = new Dictionary<TraceSeverity, ConsoleColor>
-    {
-        [TraceSeverity.Error] = ConsoleColor.Red,
-        [TraceSeverity.Warning] = ConsoleColor.Yellow
-    };
-
-    public ConsoleTraceListener()
+    public ConsoleTraceListener() :
+        this(new ConsoleTraceListenerFormatOptions())
     {
     }
 
+    public ConsoleTraceListener(ConsoleTraceListenerFormatOptions formatOptions)
+    {
+        this.formatOptions = formatOptions;
+    }
+
     public ConsoleTraceListener(ITraceFilter filter) :
+        this(filter, new ConsoleTraceListenerFormatOptions())
+    {
+    }
+
+    public ConsoleTraceListener(ITraceFilter filter, ConsoleTraceListenerFormatOptions formatOptions) :
         base(filter)
     {
+        this.formatOptions = formatOptions;
     }
 
     public override void ProcessTrace(TraceEntry entry)
@@ -35,30 +36,30 @@ public sealed class ConsoleTraceListener : TraceListener
 
         Console.Write(new string(' ', entry.Format.IndentLevel));
 
-        Console.ForegroundColor = NamespaceColor;
+        Console.ForegroundColor = formatOptions.NamespaceColor;
         Console.Write(entry.Caller.Namespace);
 
-        Console.ForegroundColor = TextColor;
+        Console.ForegroundColor = formatOptions.TextColor;
         Console.Write('.');
 
-        Console.ForegroundColor = TypeNameColor;
+        Console.ForegroundColor = formatOptions.TypeNameColor;
         Console.Write(entry.Caller.TypeName);
 
-        Console.ForegroundColor = TextColor;
+        Console.ForegroundColor = formatOptions.TextColor;
         Console.Write('.');
 
-        Console.ForegroundColor = MemberNameColor;
+        Console.ForegroundColor = formatOptions.MemberNameColor;
         Console.Write(entry.Caller.MemberName);
 
-        Console.ForegroundColor = TextColor;
+        Console.ForegroundColor = formatOptions.TextColor;
         Console.Write(':');
 
-        Console.ForegroundColor = LineNumberColor;
+        Console.ForegroundColor = formatOptions.LineNumberColor;
         Console.Write(entry.Caller.LineNumber);
 
-        if (!severityToColorMappings.TryGetValue(entry.Trace.Severity, out ConsoleColor color))
+        if (!formatOptions.SeverityToColorMappings.TryGetValue(entry.Trace.Severity, out ConsoleColor color))
         {
-            color = TextColor;
+            color = formatOptions.TextColor;
         }
 
         Console.ForegroundColor = color;
