@@ -15,4 +15,7 @@
         <RepositoryUrl>https://github.com/Padutronics/Padutronics.Diagnostics.Tracing.Console</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
     </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Padutronics.Diagnostics.Tracing" Version="0.1.0" />
+    </ItemGroup>
 </Project>
